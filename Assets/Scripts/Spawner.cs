@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -10,10 +9,10 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(SpawningCubes());
+        StartCoroutine(SpawnCubes());
     }
 
-    private IEnumerator SpawningCubes()
+    private IEnumerator SpawnCubes()
     {
         var delay = new WaitForSeconds(_spawnDelay);
 

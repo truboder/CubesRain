@@ -1,19 +1,23 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Cube : MonoBehaviour
 {
-    private CubePool _cubePool;
+    private ColorChanger _colorChanger;
 
     private float _minDelay = 2;
     private float _maxDelay = 5;
     private bool _isTouched;
     private bool _isColorChanged;
 
-    public void Initialize(CubePool cubePool)
+    public event UnityAction<Cube> CubeDeactivated;
+
+    public bool IsColorChanged => _isColorChanged;
+
+    private void Awake()
     {
-        _cubePool = cubePool;
+        _colorChanger = new ColorChanger();
     }
 
     private void OnEnable()
@@ -21,7 +25,7 @@ public class Cube : MonoBehaviour
         _isTouched = false;
         _isColorChanged = false;
 
-        gameObject.GetComponent<Renderer>().material.color = Color.white;
+        _colorChanger.SetDefaultColor(this);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -35,26 +39,18 @@ public class Cube : MonoBehaviour
 
             _isTouched = true;
 
-            ChangeColor();
+            _colorChanger.SetRandomColor(this);
+
             _isColorChanged = true;
 
             StartCoroutine(DelayDestroying());
         }
     }
 
-    private void ChangeColor()
-    {
-        if (_isColorChanged)
-        {
-            return;
-        }
-
-        gameObject.GetComponent<Renderer>().material.color = new Color(Random.value, Random.value, Random.value);
-    }
-
     private IEnumerator DelayDestroying()
     {
         yield return new WaitForSeconds(Random.Range(_minDelay, _maxDelay));
-        _cubePool.Return(this);
+
+        CubeDeactivated?.Invoke(this);
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +7,29 @@ public class CubePool : MonoBehaviour
     [SerializeField] private int _capacity;
 
     private Queue<Cube> _cubes = new Queue<Cube>();
+
+    private void OnEnable()
+    {
+        _cube.CubeDeactivated += Return;
+    }
+
+    private void OnDisable()
+    {
+        _cube.CubeDeactivated -= Return;
+    }
+
+       private void Awake()
+    {
+        for (int i = 0; i < _capacity; i++)
+        {
+            _cubes.Enqueue(Instantiate(_cube));
+        }
+
+        foreach (Cube cube in _cubes)
+        {
+            cube.gameObject.SetActive(false);
+        }
+    }
 
     public Cube Get()
     {
@@ -28,24 +50,9 @@ public class CubePool : MonoBehaviour
         _cubes.Enqueue(cube);   
     }
 
-    private void Awake()
-    {
-        for (int i = 0; i < _capacity; i++)
-        {
-            _cubes.Enqueue(Instantiate(_cube));
-        }
-
-        foreach (Cube cube in _cubes)
-        {
-            cube.gameObject.SetActive(false);
-            cube.Initialize(this);
-        }
-    }
-
     private void ExpandPool()
     {
         Cube cube = Instantiate(_cube);
-        cube.Initialize(this);
-        _cubes.Enqueue(_cube);
+        _cubes.Enqueue(cube);
     }
 }
